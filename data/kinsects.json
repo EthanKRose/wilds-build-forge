@@ -1,0 +1,25 @@
+{
+"_source": "mhwilds.kiranico.com/data/kinsects (Game Ver. 1.040). Levels rows: [power, speed, stamina, powder effect] for Lv1..Lv10.",
+"list": [
+ {"n":"Mauldrone","t":"Blunt","p":"Recover","b":["Kinsect Boost: Harvest Extract","Extract Boost: Recovery"],"L":[[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[5,5,5,5],[6,6,6,6],[7,7,7,7],[8,8,7,9],[9,9,8,11],[9,9,8,13]]},
+ {"n":"Culldrone","t":"Severing","p":"Poison","b":["Kinsect Boost: Harvest Extract","Extract Boost: Recovery"],"L":[[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[5,5,5,5],[6,6,6,6],[7,7,7,7],[8,8,7,9],[9,9,8,11],[9,9,8,13]]},
+ {"n":"Foebeetle","t":"Blunt","p":"Poison","b":["Kinsect Boost: Harvest Extract","Attack Boost: Weak Point Focus"],"L":[[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[5,5,5,6],[6,6,6,8],[7,7,7,10],[8,8,8,12],[9,9,9,14],[10,9,9,15]]},
+ {"n":"Carnage Beetle","t":"Blunt","p":"Poison","b":["Kinsect Combo Boost: Element","Kinsect Boost: Stamina Recovery"],"L":[[3,1,1,1],[4,2,2,2],[5,3,3,3],[6,4,4,4],[8,5,5,6],[10,6,6,8],[11,7,7,10],[12,7,7,12],[13,8,8,14],[14,8,8,15]]},
+ {"n":"Bonnetfille","t":"Blunt","p":"Recover","b":["Attack Boost: Powder","Kinsect Boost: Fast Charge"],"L":[[1,1,2,1],[2,2,3,2],[3,2,4,3],[4,3,5,4],[6,3,6,6],[8,4,7,8],[10,4,8,10],[12,5,8,12],[14,5,9,14],[15,6,9,15]]},
+ {"n":"Gullshad","t":"Blunt","p":"Recover","b":["Kinsect Boost: Harvest Extract","Attack Boost: Weak Point Focus"],"L":[[1,2,2,1],[2,3,3,2],[3,4,4,3],[3,5,5,4],[4,6,6,6],[4,7,7,8],[5,8,8,10],[5,9,8,12],[6,11,9,14],[6,13,9,15]]},
+ {"n":"Whispervesp","t":"Blunt","p":"Blast","b":["Attack Boost: Powder","Kinsect Boost: Fast Charge"],"L":[[1,2,1,1],[2,3,2,2],[3,4,3,3],[4,6,3,4],[5,8,4,6],[6,10,4,8],[7,12,5,10],[8,13,5,12],[9,14,6,14],[9,15,6,15]]},
+ {"n":"Bullshroud","t":"Blunt","p":"Recover","b":["Kinsect Combo Boost: Element","Extract Boost: Recovery"],"L":[[1,3,1,1],[2,4,2,2],[3,5,3,3],[4,6,4,4],[4,8,5,6],[5,10,6,8],[5,11,7,10],[6,12,8,12],[6,13,9,14],[7,14,9,15]]},
+ {"n":"Ladytarge","t":"Blunt","p":"Paralysis","b":["Kinsect Boost: Harvest Extract","Attack Boost: Weak Point Focus"],"L":[[1,1,2,1],[2,2,3,2],[3,3,4,3],[4,4,5,4],[5,5,6,6],[6,6,8,8],[7,7,10,10],[7,7,12,12],[8,8,12,14],[8,8,12,15]]},
+ {"n":"Ladypavise","t":"Blunt","p":"Paralysis","b":["Kinsect Combo Boost: Element","Kinsect Boost: Stamina Recovery"],"L":[[1,1,2,1],[2,2,3,2],[3,3,4,3],[4,4,5,4],[5,5,6,6],[5,6,7,8],[6,7,8,10],[6,8,9,12],[7,9,11,14],[7,10,13,15]]},
+ {"n":"Arkmaiden","t":"Blunt","p":"Blast","b":["Kinsect Boost: Harvest Extract","Kinsect Boost: Fast Charge"],"L":[[1,1,2,1],[2,2,3,2],[3,3,4,3],[4,4,6,4],[5,5,8,6],[6,5,10,8],[7,6,12,10],[7,6,13,12],[8,7,14,14],[8,7,15,15]]},
+ {"n":"Alucanid","t":"Severing","p":"Poison","b":["Kinsect Boost: Harvest Extract","Attack Boost: Weak Point Focus"],"L":[[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[5,5,5,6],[6,6,6,8],[7,7,7,10],[8,8,8,12],[9,9,9,14],[10,9,9,15]]},
+ {"n":"Monarch Alucanid","t":"Severing","p":"Poison","b":["Kinsect Combo Boost: Element","Kinsect Boost: Stamina Recovery"],"L":[[3,1,1,1],[4,2,2,2],[5,3,3,3],[6,4,4,4],[8,5,5,6],[10,6,6,8],[11,7,7,10],[12,7,7,12],[13,8,8,14],[14,8,8,15]]},
+ {"n":"Empresswing","t":"Severing","p":"Recover","b":["Attack Boost: Powder","Kinsect Boost: Fast Charge"],"L":[[1,1,2,1],[2,2,3,2],[3,2,4,3],[4,3,5,4],[6,3,6,6],[8,4,7,8],[10,4,8,10],[12,5,8,12],[14,5,9,14],[15,6,9,15]]},
+ {"n":"Windchopper","t":"Severing","p":"Recover","b":["Kinsect Boost: Harvest Extract","Attack Boost: Weak Point Focus"],"L":[[1,2,2,1],[2,3,3,2],[3,4,4,3],[3,5,5,4],[4,6,6,6],[4,7,7,8],[5,8,8,10],[5,9,8,12],[6,11,9,14],[6,13,9,15]]},
+ {"n":"Pseudocath","t":"Severing","p":"Blast","b":["Attack Boost: Powder","Kinsect Boost: Fast Charge"],"L":[[1,2,1,1],[2,3,2,2],[3,4,3,3],[4,6,3,4],[5,8,4,6],[6,10,4,8],[7,12,5,10],[8,13,5,12],[9,14,6,14],[9,15,6,15]]},
+ {"n":"Grancathar","t":"Severing","p":"Recover","b":["Kinsect Combo Boost: Element","Extract Boost: Recovery"],"L":[[1,3,1,1],[2,4,2,2],[3,5,3,3],[4,6,4,4],[4,8,5,6],[5,10,6,8],[5,11,7,10],[6,12,8,12],[6,13,9,14],[7,14,9,15]]},
+ {"n":"Rigiprayne","t":"Severing","p":"Paralysis","b":["Kinsect Boost: Harvest Extract","Attack Boost: Weak Point Focus"],"L":[[1,1,2,1],[2,2,3,2],[3,3,4,3],[4,4,5,4],[5,5,6,6],[6,6,8,8],[7,7,10,10],[7,7,12,12],[8,8,12,14],[8,8,12,15]]},
+ {"n":"Cancadaman","t":"Severing","p":"Paralysis","b":["Kinsect Combo Boost: Element","Kinsect Boost: Stamina Recovery"],"L":[[1,1,2,1],[2,2,3,2],[3,3,4,3],[4,4,5,4],[5,5,6,6],[5,6,7,8],[6,7,8,10],[6,8,9,12],[7,9,11,14],[7,10,13,15]]},
+ {"n":"Fiddlebrix","t":"Severing","p":"Blast","b":["Kinsect Boost: Harvest Extract","Kinsect Boost: Fast Charge"],"L":[[1,1,2,1],[2,2,3,2],[3,3,4,3],[4,4,6,4],[5,5,8,6],[6,5,10,8],[7,6,12,10],[7,6,13,12],[8,7,14,14],[8,7,15,15]]},
+ {"n":"OMG","t":"Severing","p":"Blast","b":["Attack Boost: Powder","Attack Boost: Weak Point Focus"],"L":[[1,2,2,1],[2,3,3,2],[3,4,4,3],[3,5,5,4],[4,6,6,6],[4,8,8,8],[5,10,10,10],[5,12,12,12],[6,12,12,14],[6,12,12,15]]}
+]}

@@ -1,0 +1,1162 @@
+<title>Wilds Build Forge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: smithy workbench. Loadout column (left) feeds two readout columns: skills (centre) and stats (right). Pickers slide in as a drawer. */
+:root {
+  --bg: #e9ece7;
+  --panel: #f7f8f5;
+  --panel-2: #dfe4dc;
+  --line: #c4ccc0;
+  --fg: #1b211d;
+  --muted: #5b665e;
+  --accent: #9a6512;
+  --accent-soft: #f1e2c4;
+  --accent-fg: #ffffff;
+  --good: #2f7a3e;
+  --warn: #b04a1d;
+  --fire: #c8361f; --water: #1f6fc8; --thunder: #a88400; --ice: #1593a8; --dragon: #7a3cb4;
+  --status: #6b7a2a;
+  --s-red:#d33a2c; --s-orange:#e38a25; --s-yellow:#e2c925; --s-green:#55b13c; --s-blue:#2f7fe0; --s-white:#e9eef2; --s-purple:#9b55e0;
+  --shadow: 0 1px 0 rgba(27,33,29,.06), 0 6px 18px rgba(27,33,29,.08);
+  --f-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111613; --panel: #18201b; --panel-2: #212b25; --line: #2f3b33; --fg: #e3e8e2; --muted: #93a096;
+  --accent: #e0a64a; --accent-soft: #3a2e17; --accent-fg: #1a1408; --good: #6cc77c; --warn: #f08a5d;
+  --fire: #ff6a4f; --water: #5aa5ff; --thunder: #f2d03b; --ice: #5fd3e6; --dragon: #b98cf2; --status: #b5c75a;
+  --s-white:#f4f7fa; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 22px rgba(0,0,0,.35); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111613; --panel: #18201b; --panel-2: #212b25; --line: #2f3b33; --fg: #e3e8e2; --muted: #93a096;
+  --accent: #e0a64a; --accent-soft: #3a2e17; --accent-fg: #1a1408; --good: #6cc77c; --warn: #f08a5d;
+  --fire: #ff6a4f; --water: #5aa5ff; --thunder: #f2d03b; --ice: #5fd3e6; --dragon: #b98cf2; --status: #b5c75a;
+  --s-white:#f4f7fa; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 22px rgba(0,0,0,.35); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num, .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.wrap { padding-inline: 16px; padding-block: 0 48px; max-width: 1480px; margin: 0 auto; }
+
+/* ---------- header ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); margin-inline: -16px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+@media (max-width: 760px) { .top { position: static; } .brand h1 { font-size: 22px; } }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand h1 { font-family: var(--f-display); font-weight: 700; font-size: 26px; letter-spacing: .02em; margin: 0; text-transform: uppercase; line-height: 1; }
+.brand h1 span { color: var(--accent); }
+.brand small { color: var(--muted); font-size: 12px; }
+.buildname { flex: 1 1 200px; min-width: 0; display: flex; gap: 8px; align-items: center; }
+.buildname input { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-family: var(--f-display); font-size: 17px; font-weight: 600; letter-spacing: .02em; }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 11px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--fg); border-color: var(--line); }
+.btn.sm { padding: 4px 8px; font-size: 12px; }
+
+/* ---------- main grid ---------- */
+.grid { display: grid; gap: 18px; grid-template-columns: minmax(330px, 400px) minmax(0, 1fr) minmax(280px, 340px); margin-top: 18px; align-items: start; }
+@media (max-width: 1180px) { .grid { grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); } .col-stats { grid-column: 1 / -1; } }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.col-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.col-h h2 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-size: 15px; font-weight: 600; color: var(--muted); margin: 0; }
+.col-h .meta { font-size: 12px; color: var(--muted); }
+
+/* ---------- loadout slots ---------- */
+.slot { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+.slot.empty { border-style: dashed; background: transparent; }
+.slot .ico { grid-row: span 2; width: 40px; height: 40px; border-radius: 6px; background: var(--panel-2); display: grid; place-items: center; color: var(--muted); }
+.slot .ico svg { width: 24px; height: 24px; }
+.slot .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.slot .name { font-family: var(--f-display); font-size: 19px; font-weight: 600; line-height: 1.15; background: none; border: 0; padding: 0; text-align: left; min-width: 0; overflow-wrap: anywhere; }
+.slot .name:hover { color: var(--accent); }
+.slot.empty .name { color: var(--muted); font-weight: 500; }
+.slot .acts { grid-row: span 2; align-self: start; display: flex; gap: 2px; }
+.slot .sub { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); }
+.slot .decos { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.slot .skl { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+
+.deco { display: flex; align-items: center; gap: 8px; background: var(--panel-2); border: 1px solid transparent; border-radius: 6px; padding: 5px 8px; text-align: left; width: 100%; font-size: 13px; }
+.deco:hover { border-color: var(--accent); }
+.deco.empty { color: var(--muted); background: transparent; border: 1px dashed var(--line); }
+.deco .dn { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.deco .dk { font-size: 11px; color: var(--muted); }
+
+.rar { font-family: var(--f-mono); font-size: 11px; padding: 0 5px; border-radius: 3px; background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); }
+.rar.r8 { border-color: var(--accent); color: var(--accent); }
+
+/* slot size glyphs: armor = diamond, weapon = rounded square */
+.sg { display: inline-grid; place-items: center; width: 17px; height: 17px; font-family: var(--f-mono); font-size: 10px; font-weight: 500; flex: none; position: relative; color: var(--fg); }
+.sg::before { content: ""; position: absolute; inset: 2px; border: 1.5px solid var(--muted); transform: rotate(45deg); border-radius: 2px; }
+.sg.w::before { transform: none; border-radius: 5px; inset: 1px; border-color: var(--accent); }
+.sg b { position: relative; font-weight: 600; }
+.sgs { display: inline-flex; gap: 2px; align-items: center; }
+
+.chip { font-size: 12px; padding: 1px 7px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); white-space: nowrap; }
+.chip.set { border-color: var(--accent); background: var(--accent-soft); }
+.chip b { font-family: var(--f-mono); font-weight: 500; margin-left: 3px; }
+
+.custom-tal { grid-column: 1 / -1; display: grid; gap: 6px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.custom-tal .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.custom-tal select { background: var(--panel-2); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; min-width: 0; font-size: 13px; }
+.custom-tal .row select:first-child { flex: 1 1 160px; }
+.custom-tal .hint { font-size: 12px; color: var(--muted); }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.fl { display: grid; gap: 3px; min-width: 0; }
+.fl > span { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.fl select, .rf select { width: 100%; min-width: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 5px; padding: 5px 6px; font-size: 13px; }
+.fl select:disabled { opacity: .55; }
+.rf { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
+.forge-out { font-family: var(--f-mono); font-size: 12px; color: var(--fg); background: var(--accent-soft); border-radius: 5px; padding: 5px 8px; }
+.forge-warn { font-size: 12px; color: var(--warn); }
+.kb { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--f-mono); font-size: 10px; font-weight: 600; flex: none; }
+.kin-card { display: grid; gap: 6px; }
+.kstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.kstat { display: grid; gap: 3px; font-size: 11px; color: var(--muted); }
+.kstat b { font-family: var(--f-mono); font-weight: 500; color: var(--fg); font-size: 13px; }
+.kstat i { display: block; height: 4px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
+.kstat i span { display: block; height: 100%; background: var(--accent); }
+.note { font-size: 12px; color: var(--muted); border-left: 2px solid var(--accent); padding-left: 8px; }
+
+/* ---------- skills ---------- */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.sk-group { padding: 6px 0; }
+.sk-group + .sk-group { border-top: 1px solid var(--line); }
+.sk-group h3 { margin: 6px 14px 4px; font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; font-weight: 600; color: var(--muted); }
+details.sk { padding: 0 14px; }
+details.sk > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 8px 0; border-top: 1px dashed var(--line); }
+details.sk:first-of-type > summary { border-top: 0; }
+details.sk > summary::-webkit-details-marker { display: none; }
+.sk-name { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.sk-name .caret { width: 10px; color: var(--muted); transition: transform .15s; font-size: 10px; }
+details[open] .caret { transform: rotate(90deg); }
+.sk-kind { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+.sk-lv { display: flex; align-items: center; gap: 8px; justify-self: end; }
+.sk-lv .num { font-size: 13px; }
+.pips { display: inline-flex; gap: 3px; }
+.pips i { width: 9px; height: 14px; border-radius: 2px; background: var(--panel-2); border: 1px solid var(--line); }
+.pips i.on { background: var(--accent); border-color: var(--accent); }
+.pips i.over { background: var(--warn); border-color: var(--warn); }
+.sk-eff { grid-column: 1 / -1; color: var(--muted); font-size: 13px; padding-left: 18px; }
+.sk-eff.inactive { font-style: italic; }
+.over-tag { font-size: 11px; color: var(--warn); font-weight: 600; }
+.sk-body { padding: 0 0 12px 18px; display: grid; gap: 10px; }
+.sk-desc { font-size: 13px; }
+.ranks { display: grid; gap: 3px; }
+.rank { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 8px; font-size: 13px; padding: 4px 8px; border-radius: 5px; color: var(--muted); }
+.rank.cur { background: var(--accent-soft); color: var(--fg); }
+.rank.cur .rl { color: var(--accent); }
+.rank .rl { font-family: var(--f-mono); font-size: 12px; }
+.rank .rn { font-weight: 600; color: var(--fg); }
+.srcs { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.srcs span b { font-family: var(--f-mono); color: var(--fg); font-weight: 500; }
+.setbar { display: inline-flex; gap: 2px; }
+.setbar i { width: 14px; height: 6px; border-radius: 2px; background: var(--panel-2); border: 1px solid var(--line); }
+.setbar i.on { background: var(--accent); border-color: var(--accent); }
+.setbar i.mark { box-shadow: 0 0 0 1px var(--fg) inset; }
+.empty-note { padding: 18px 14px; color: var(--muted); font-size: 13px; }
+
+/* ---------- stats ---------- */
+.stat-card { padding: 14px; display: grid; gap: 10px; }
+.stat-card h3 { margin: 0; font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; font-weight: 600; color: var(--muted); }
+.big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.big .v { font-family: var(--f-display); font-size: 44px; font-weight: 700; line-height: 1; }
+.big .delta { font-family: var(--f-mono); font-size: 13px; color: var(--good); }
+.fine { font-size: 12px; color: var(--muted); }
+.res { display: grid; grid-template-columns: 74px minmax(0, 1fr) 64px; gap: 6px 10px; align-items: center; font-size: 13px; }
+.res .el { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.res .el i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.res .bar { height: 10px; position: relative; background: var(--panel-2); border-radius: 3px; }
+.res .bar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); }
+.res .bar span { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.res .val { text-align: right; font-family: var(--f-mono); }
+.res .val.neg { color: var(--warn); }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 14px; font-size: 13px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; text-align: right; font-family: var(--f-mono); overflow-wrap: anywhere; }
+.kv dd.txt { font-family: var(--f-body); }
+.sharp { display: flex; height: 14px; border-radius: 3px; overflow: hidden; background: var(--panel-2); position: relative; }
+.sharp span { height: 100%; }
+.sharp .hc { background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgba(0,0,0,.28) 3px 5px); }
+.sharp-legend { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* ---------- drawer picker ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(10,14,12,.45); z-index: 40; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(720px, 100%); background: var(--panel); z-index: 41; display: flex; flex-direction: column; box-shadow: var(--shadow); border-left: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.dr-head { padding: 14px 16px 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.dr-title { display: flex; align-items: center; gap: 10px; }
+.dr-title h2 { margin: 0; flex: 1; font-family: var(--f-display); font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters input, .filters select { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; font-size: 13px; min-width: 0; }
+.filters input[type=search] { flex: 1 1 200px; }
+.filters select { flex: 0 1 auto; max-width: 100%; }
+.wtabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+.wtab { background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 12px; white-space: nowrap; }
+.wtab.on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.dr-list { flex: 1; overflow-y: auto; padding: 6px 8px 24px; }
+.dr-count { padding: 4px 8px 6px; font-size: 12px; color: var(--muted); }
+.row { }
+.item { width: 100%; text-align: left; background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 9px 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+.item:hover { background: var(--bg); border-color: var(--line); }
+.item.cur { border-color: var(--accent); background: var(--accent-soft); }
+.item .in { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.item .im { display: flex; gap: 10px; align-items: center; justify-self: end; font-size: 12px; color: var(--muted); }
+.item .ik { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.ires { display: inline-flex; gap: 6px; font-family: var(--f-mono); font-size: 11px; }
+.ires span { display: inline-flex; gap: 2px; align-items: center; }
+.ires i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.custom-btn { margin: 4px 2px 10px; width: calc(100% - 4px); padding: 10px; border: 1px dashed var(--accent); border-radius: 7px; background: transparent; text-align: left; }
+.custom-btn b { display: block; }
+.custom-btn span { font-size: 12px; color: var(--muted); }
+
+.c-fire { color: var(--fire); } .c-water { color: var(--water); } .c-thunder { color: var(--thunder); } .c-ice { color: var(--ice); } .c-dragon { color: var(--dragon); }
+.c-poison, .c-paralysis, .c-sleep, .c-blast { color: var(--status); }
+
+/* ---------- builds menu / toast ---------- */
+.menu { position: absolute; right: 16px; top: calc(100% + 4px); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); width: min(360px, calc(100vw - 32px)); padding: 10px; display: grid; gap: 8px; z-index: 30; }
+.menu h4 { margin: 2px 2px 0; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.menu .saved { display: grid; gap: 2px; max-height: 260px; overflow-y: auto; }
+.menu .saved div { display: flex; gap: 4px; align-items: center; }
+.menu .saved button.load { flex: 1; text-align: left; background: transparent; border: 0; padding: 6px; border-radius: 5px; min-width: 0; overflow-wrap: anywhere; }
+.menu .saved button.load:hover { background: var(--bg); }
+.menu textarea { width: 100%; min-height: 54px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-family: var(--f-mono); font-size: 12px; resize: vertical; color: var(--fg); }
+.menu .r { display: flex; gap: 6px; flex-wrap: wrap; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-size: 13px; z-index: 60; }
+.foot { margin-top: 28px; font-size: 12px; color: var(--muted); max-width: 72ch; }
+.foot a { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: no-preference) { .drawer { animation: slidein .18s ease-out; } @keyframes slidein { from { transform: translateX(24px); opacity: .6; } } }
+</style>
+
+<div class="wrap">
+  <header class="top" id="top">
+    <div class="brand"><h1>Wilds <span>Build</span> Forge</h1><small id="dataNote"></small></div>
+    <div class="buildname">
+      <label for="bname" class="fine" style="white-space:nowrap">Build</label>
+      <input id="bname" type="text" maxlength="60" value="">
+    </div>
+    <div class="tools">
+      <button class="btn primary" id="saveBtn" type="button">Save</button>
+      <button class="btn" id="buildsBtn" type="button" aria-expanded="false">Builds &amp; sharing</button>
+      <button class="btn ghost" id="clearBtn" type="button">Clear all</button>
+    </div>
+    <div class="menu" id="menu" hidden>
+      <h4>Saved in this browser</h4>
+      <div class="saved" id="savedList"></div>
+      <h4>Build code</h4>
+      <textarea id="codeBox" spellcheck="false" aria-label="Build code"></textarea>
+      <div class="r">
+        <button class="btn sm" id="copyCode" type="button">Copy code</button>
+        <button class="btn sm" id="loadCode" type="button">Load pasted code</button>
+      </div>
+      <p class="fine" style="margin:0">Send the code to a friend. They paste it here and press Load.</p>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="col col-load" aria-label="Loadout">
+      <div class="col-h"><h2>Loadout</h2><span class="meta" id="loadMeta"></span></div>
+      <div id="loadout" class="col"></div>
+    </section>
+    <section class="col col-skills" aria-label="Skills">
+      <div class="col-h"><h2>Skills</h2><span class="meta" id="skillMeta"></span></div>
+      <div class="panel" id="skills"></div>
+    </section>
+    <section class="col col-stats" aria-label="Stats">
+      <div class="col-h"><h2>Stats</h2><span class="meta">Armor at max upgrade</span></div>
+      <div class="panel" id="stats"></div>
+    </section>
+  </main>
+
+  <p class="foot">Game data comes from the community <a href="https://github.com/LartTyler/mhdb-wilds-data" target="_blank" rel="noopener">mhdb-wilds-data</a> extraction (snapshot <span id="dataDate"></span>). Element and status values are shown the way the game's equipment screen shows them. Defense and resistance totals add the always-on parts of Defense Boost and the elemental resistance skills; attack and affinity add Attack Boost and Critical Eye. Conditional skills are listed but not added to the numbers. Appraised talismans are random, so enter yours with the "Enter an appraised talisman" button. Attack is shown as the in-game number. Artian Rarity 8 element and status values come from GameWith's Artian weapon pages; Rarity 6–7 Artian values and Gogma reinforcement tiers are community estimates. Kinsect stats come from <a href="https://mhwilds.kiranico.com/data/kinsects" target="_blank" rel="noopener">Kiranico</a> and follow the glaive's kinsect level.</p>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="dr-head">
+    <div class="dr-title">
+      <h2 id="drTitle">Pick</h2>
+      <button class="btn sm" id="drRemove" type="button">Unequip</button>
+      <button class="btn sm" id="drClose" type="button" aria-label="Close picker">Close</button>
+    </div>
+    <div class="wtabs" id="wtabs" hidden></div>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search name or skill" aria-label="Search">
+      <select id="fSkill" aria-label="Filter by skill"></select>
+      <select id="fRar" aria-label="Minimum rarity"></select>
+      <select id="fSort" aria-label="Sort"></select>
+    </div>
+  </div>
+  <div class="dr-list" id="drList"></div>
+</aside>
+<div class="toast" id="toast" hidden></div>
+
+<script type="application/json" id="gamedata">__DATA__</script>
+<script>
+(function () {
+"use strict";
+const D = JSON.parse(document.getElementById("gamedata").textContent);
+const DATA_DATE = "__DATE__";
+const ELEMS = ["fire", "water", "thunder", "ice", "dragon"];
+const ELABEL = { fire: "Fire", water: "Water", thunder: "Thunder", ice: "Ice", dragon: "Dragon", poison: "Poison", paralysis: "Paralysis", sleep: "Sleep", blast: "Blast" };
+const SHARP = ["red", "orange", "yellow", "green", "blue", "white", "purple"];
+const ARMOR_KINDS = ["head", "chest", "arms", "waist", "legs"];
+const SLOT_LABEL = { weapon: "Weapon", head: "Head", chest: "Chest", arms: "Arms", waist: "Waist", legs: "Legs", talisman: "Talisman" };
+const SLOTS = ["weapon", ...ARMOR_KINDS, "talisman"];
+const ICONS = {
+  weapon: '<path d="M4 20l6-6M9 15l-3-3 9-9h3v3l-9 9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  head: '<path d="M5 15c0-5 3-9 7-9s7 4 7 9v3H5z M9 18v-3h6v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  chest: '<path d="M7 4l5 2 5-2 3 4-2 3v9H6v-9L4 8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  arms: '<path d="M6 20V9l3-5h4l2 4h3v5h-3v7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  waist: '<path d="M4 8h16v5l-3 2H7l-3-2z M11 9h2v4h-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  legs: '<path d="M7 3h10v7l-1 10h-3l-1-8-1 8H8L7 10z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  talisman: '<path d="M12 3l3 4-3 14-3-14z M9 7h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'
+};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const SK = D.skills;
+const maxLv = i => { const s = SK[i]; return s.r.length ? s.r[s.r.length - 1].l : 0; };
+const isBonus = i => SK[i].k === "set" || SK[i].k === "group";
+const setOf = a => D.sets[a.s];
+
+// precomputed search text
+D.armor.forEach(a => { a._q = (a.n + " " + setOf(a).n + " " + a.sk.map(([s]) => SK[s].n).join(" ")).toLowerCase(); });
+D.weapons.forEach(w => { w._q = (w.n + " " + w.sk.map(([s]) => SK[s].n).join(" ")).toLowerCase(); });
+D.decos.forEach(d => { d._q = (d.n + " " + d.sk.map(([s]) => SK[s].n).join(" ")).toLowerCase(); });
+D.tals.forEach(t => { t._q = (t.n + " " + t.sk.map(([s]) => SK[s].n).join(" ")).toLowerCase(); });
+
+// ---------------- weapon math ----------------
+// In-game attack = raw x weapon-type multiplier (index matches D.wtypes order).
+const MULT = [4.8, 3.3, 1.4, 1.4, 5.2, 4.2, 2.3, 2.3, 3.5, 3.6, 3.1, 1.3, 1.5, 1.2];
+const showAtk = (raw, t) => Math.round(raw * MULT[t]);
+const ELIST = ["fire", "water", "thunder", "ice", "dragon", "poison", "paralysis", "sleep", "blast"];
+const STATUS = ["poison", "paralysis", "sleep", "blast"];
+// Artian tables per weapon type. e1/e8: raw element for Rarity 6-7 / Rarity 8 (shown x10 in game).
+// m3: extra element when all three parts match. eb: Artian Element Boost reinforcement.
+// gA/gF/gE: Gogma element change for Attack/Affinity/Element focus. g2/gX: Gogma Element Boost II / EX.
+const ART = [
+  { e1: 30, e8: 45, m3: 30, eb: 80, gA: 0, gF: -10, gE: 50, g2: 90, gX: 110 },   // Great Sword
+  { e1: 23, e8: 27, m3: 30, eb: 50, gA: 0, gF: -20, gE: 50, g2: 60, gX: 90 },    // Long Sword
+  { e1: 23, e8: 26, m3: 20, eb: 30, gA: 0, gF: -20, gE: 40, g2: 50, gX: 80 },    // Sword & Shield
+  { e1: 22, e8: 25, m3: 20, eb: 20, gA: 0, gF: -20, gE: 30, g2: 30, gX: 50 },    // Dual Blades
+  { e1: 27, e8: 32, m3: 30, eb: 50, gA: 0, gF: -10, gE: 40, g2: 60, gX: 90 },    // Hammer
+  { e1: 27, e8: 32, m3: 30, eb: 50, gA: 30, gF: 20, gE: 80, g2: 60, gX: 90 },    // Hunting Horn
+  { e1: 23, e8: 27, m3: 30, eb: 50, gA: 0, gF: -20, gE: 50, g2: 60, gX: 90 },    // Lance
+  { e1: 32, e8: 37, m3: 30, eb: 50, gA: 40, gF: 30, gE: 80, g2: 60, gX: 90 },    // Gunlance
+  { e1: 22, e8: 26, m3: 20, eb: 30, gA: 0, gF: -20, gE: 40, g2: 50, gX: 80 },    // Switch Axe
+  { e1: 23, e8: 27, m3: 30, eb: 50, gA: 0, gF: -20, gE: 50, g2: 60, gX: 80 },    // Charge Blade
+  { e1: 22, e8: 26, m3: 20, eb: 30, gA: 0, gF: -20, gE: 40, g2: 50, gX: 80 },    // Insect Glaive
+  { gun: true },                                                                 // Light Bowgun
+  { gun: true },                                                                 // Heavy Bowgun
+  { e1: 18, e8: 21, m3: 20, eb: 30, gA: 0, gF: -20, gE: 30, g2: 40, gX: 60, bow: true } // Bow
+];
+// Rarity 8 status values (in-game numbers) per weapon type: [poison, paralysis, sleep, blast]. Source: GameWith Artian pages.
+const ART8_STATUS = [
+  [300, 250, 250, 300], [120, 70, 70, 120], [110, 60, 60, 110], [100, 50, 50, 100], [170, 120, 120, 170],
+  [170, 120, 120, 200], [120, 70, 70, 120], [120, 120, 120, 170], [110, 60, 60, 110], [120, 70, 70, 120],
+  [110, 60, 60, 110], null, null, [null, null, null, 60]
+];
+// Rarity 8 element value (fire/water/thunder/ice/dragon) per weapon type, in-game numbers.
+const ART8_ELEM = [450, 270, 260, 250, 320, 320, 270, 320, 260, 270, 260, null, null, 210];
+const RF = {
+  a: { name: "Attack", cap: 5, v: { 1: 5, 2: 6, 3: 9, 4: 12 } },
+  f: { name: "Affinity", cap: 3, v: { 1: 5, 2: 6, 3: 8, 4: 10 } },
+  e: { name: "Element", cap: 4 },
+  s: { name: "Sharpness", cap: 2 },
+  c: { name: "Capacity", cap: 2, v: { 1: 1, 4: 2 } }
+};
+const LVNAME = { 1: "I", 2: "II", 3: "III", 4: "EX" };
+const IG = 10;
+const kinLv = w => w && w.t === IG && w.x && w.x["Kinsect Lv"] ? Math.max(1, Math.min(10, parseInt(w.x["Kinsect Lv"], 10) || 1)) : 0;
+const defaultArt = () => ({ el: null, m: 2, ap: 3, r: ["", "", "", "", ""], ss: null, gs: null });
+function rfValue(w, code) {
+  const A = ART[w.t], k = code[0], lv = +code[1];
+  if (k === "e") return lv === 1 ? A.eb : lv === 2 ? A.g2 : A.gX;
+  if (k === "s") return lv === 4 ? 50 : (w.t === IG ? 20 : 30);
+  return RF[k].v[lv];
+}
+function rfOptions(w) {
+  const A = ART[w.t], gog = w.art === 3, out = [];
+  const lv = k => gog ? ({ a: [1, 2, 3, 4], f: [1, 2, 3, 4], e: [1, 2, 4], s: [1, 4], c: [1, 4] })[k] : [1];
+  const kinds = ["a", "f"];
+  if (!A.gun) kinds.push("e");
+  if (w.sh) kinds.push("s");
+  if (A.gun) kinds.push("c");
+  kinds.forEach(k => lv(k).forEach(l => {
+    const code = k + l, v = rfValue(w, code);
+    const lab = `${RF[k].name}${gog ? " " + LVNAME[l] : ""} +${v}${k === "f" ? "%" : ""}${k === "c" ? " ammo" : ""}`;
+    out.push([code, lab]);
+  }));
+  return out;
+}
+// Full weapon stats with Artian/Gogma settings applied. raw values stay raw; element/status values are in-game numbers.
+function weaponCalc(w, cfg) {
+  let raw = w.a, aff = w.af, sharpAdd = 0, cap = 0;
+  let sp = (w.sp || []).map(([t, v, h]) => ({ t, v: v * 10, h }));
+  const notes = [];
+  if (w.art) {
+    const A = ART[w.t]; cfg = cfg || defaultArt();
+    raw += 5 * cfg.ap; aff += 5 * (3 - cfg.ap);
+    cfg.r.forEach(code => {
+      if (!code) return; const k = code[0], v = rfValue(w, code);
+      if (k === "a") raw += v; else if (k === "f") aff += v; else if (k === "s") sharpAdd += v; else if (k === "c") cap += v;
+    });
+    sp = [];
+    if (cfg.el) {
+      if (A.gun) notes.push(`${ELABEL[cfg.el]} parts set the special ammo`);
+      else if (A.bow && STATUS.includes(cfg.el)) notes.push(`${ELABEL[cfg.el]} parts add a ${ELABEL[cfg.el].toLowerCase()} coating instead of a status value`);
+      else {
+        let v;
+        if (w.art === 1) {
+          v = A.e1 * 10;
+          if (STATUS.includes(cfg.el)) v -= (cfg.el === "poison" || cfg.el === "blast") ? 150 : 200;
+          notes.push("Rarity 6–7 values are estimates");
+        } else {
+          v = STATUS.includes(cfg.el) ? ART8_STATUS[w.t][STATUS.indexOf(cfg.el)] : ART8_ELEM[w.t];
+        }
+        if (cfg.m === 3) v += A.m3;
+        if (w.art === 3) v += { A: A.gA, F: A.gF, E: A.gE }[w.fo];
+        cfg.r.forEach(code => { if (code && code[0] === "e") v += rfValue(w, code); });
+        sp = [{ t: cfg.el, v, h: 0 }];
+      }
+    }
+  }
+  return { raw, aff, sp, sharpAdd, cap, notes };
+}
+
+// ---------------- state ----------------
+const blank = () => ({ name: "New build", weapon: { i: null, d: [], a: null, k: null }, head: { i: null, d: [] }, chest: { i: null, d: [] }, arms: { i: null, d: [] }, waist: { i: null, d: [] }, legs: { i: null, d: [] }, talisman: { i: null, d: [], c: null } });
+let S = blank();
+let lastWType = 1;
+
+function itemOf(slot) {
+  const st = S[slot];
+  if (st.i === null) return null;
+  if (slot === "weapon") return D.weapons[st.i];
+  if (slot === "talisman") {
+    if (st.i === -1) return customTal(st.c);
+    return D.tals[st.i];
+  }
+  return D.armor[st.i];
+}
+function customTal(c) {
+  c = c || { sk: [], sl: [] };
+  return { n: "Custom talisman", r: 8, sk: c.sk.filter(x => x[0] !== null && x[1] > 0), custom: true, slotsTyped: c.sl };
+}
+// typed slots: [{t:'w'|'a', z}]
+function slotsOf(slot) {
+  const it = itemOf(slot);
+  if (!it) return [];
+  if (slot === "weapon") return it.sl.map(z => ({ t: "w", z }));
+  if (slot === "talisman") return it.custom ? (it.slotsTyped || []) : [];
+  return it.sl.map(z => ({ t: "a", z }));
+}
+function fixDecos(slot) {
+  const sl = slotsOf(slot), st = S[slot];
+  st.d = sl.map((s, k) => {
+    const di = st.d[k];
+    if (di == null) return null;
+    const d = D.decos[di];
+    return d && d.on === s.t && d.lv <= s.z ? di : null;
+  });
+}
+
+// ---------------- computation ----------------
+function compute() {
+  const tot = new Map(); // skill -> {pts, src:[]}
+  const add = (s, v, from) => {
+    if (!tot.has(s)) tot.set(s, { pts: 0, src: [] });
+    const e = tot.get(s); e.pts += v; e.src.push([from, v]);
+  };
+  for (const slot of SLOTS) {
+    const it = itemOf(slot); if (!it) continue;
+    it.sk.forEach(([s, v]) => add(s, v, it.n));
+    if (slot === "weapon" && it.art === 3 && S.weapon.a) {
+      if (S.weapon.a.ss != null) add(S.weapon.a.ss, 1, it.n);
+      if (S.weapon.a.gs != null) add(S.weapon.a.gs, 1, it.n);
+    }
+    S[slot].d.forEach(di => { if (di != null) D.decos[di].sk.forEach(([s, v]) => add(s, v, D.decos[di].n)); });
+  }
+  const skills = [], bonuses = [];
+  for (const [s, e] of tot) {
+    const sk = SK[s];
+    if (isBonus(s)) {
+      let active = null;
+      sk.r.forEach(r => { if ((r.p || 0) <= e.pts) active = r; });
+      bonuses.push({ s, pts: e.pts, src: e.src, active, next: sk.r.find(r => (r.p || 0) > e.pts) || null });
+    } else {
+      const m = maxLv(s);
+      skills.push({ s, pts: e.pts, lv: Math.min(e.pts, m), max: m, src: e.src });
+    }
+  }
+  skills.sort((a, b) => b.lv - a.lv || SK[a.s].n.localeCompare(SK[b.s].n));
+  bonuses.sort((a, b) => (b.active ? 1 : 0) - (a.active ? 1 : 0) || b.pts - a.pts || SK[a.s].n.localeCompare(SK[b.s].n));
+
+  // defense / resistances
+  let def = 0, defBase = 0; const res = [0, 0, 0, 0, 0];
+  ARMOR_KINDS.forEach(k => { const a = itemOf(k); if (a) { def += a.m; defBase += a.b; a.e.forEach((v, i) => res[i] += v); } });
+  const w = itemOf("weapon");
+  if (w && w.df) { def += w.df; defBase += w.df; }
+  let pct = 0, flat = 0; const resB = [0, 0, 0, 0, 0];
+  const lvOf = name => { const x = skills.find(q => SK[q.s].n === name); return x ? x : null; };
+  const rankText = x => x ? (SK[x.s].r.find(r => r.l === x.lv) || {}).d || "" : "";
+  const dbx = lvOf("Defense Boost");
+  if (dbx) {
+    const t = rankText(dbx);
+    let m = t.match(/Defense \+(\d+)%\s*Bonus:\s*\+(\d+)/i);
+    if (m) { pct += +m[1]; flat += +m[2]; } else if ((m = t.match(/Defense \+(\d+)/i))) flat += +m[1];
+    if ((m = t.match(/All elemental resistances \+(\d+)/i))) for (let i = 0; i < 5; i++) resB[i] += +m[1];
+  }
+  ELEMS.forEach((e, i) => {
+    const x = lvOf(ELABEL[e] + " Resistance"); if (!x) return;
+    const t = rankText(x); let m;
+    if ((m = t.match(/resistance \+(\d+)/i))) resB[i] += +m[1];
+    if ((m = t.match(/Defense \+(\d+)/))) flat += +m[1];
+  });
+  const defSk = Math.floor(def * (1 + pct / 100)) + flat;
+  // attack / affinity
+  let atk = null, aff = null, atkSk = null, affSk = null, sharp = null, wc = null;
+  if (w) {
+    wc = weaponCalc(w, S.weapon.a);
+    atk = wc.raw; aff = wc.aff;
+    let p = 0, f = 0, m;
+    const ab = lvOf("Attack Boost");
+    if (ab) { const t = rankText(ab); if ((m = t.match(/Attack \+(\d+)%\s*Bonus:\s*\+(\d+)/i))) { p = +m[1]; f = +m[2]; } else if ((m = t.match(/Attack \+(\d+)/i))) f = +m[1]; }
+    atkSk = Math.round(atk * (1 + p / 100) + f);
+    affSk = aff;
+    const ce = lvOf("Critical Eye");
+    if (ce && (m = rankText(ce).match(/Affinity \+(\d+)%/i))) affSk += +m[1];
+    affSk = Math.min(100, affSk);
+    if (w.sh) {
+      const hcx = lvOf("Handicraft");
+      const hcPts = hcx ? hcx.lv * 10 : 0;
+      const base = w.sh.slice(), extra = [0, 0, 0, 0, 0, 0, 0];
+      let top = 0; base.forEach((v, i) => { if (v > 0) top = i; });
+      base[top] += wc.sharpAdd;
+      let left = hcPts;
+      (w.hc || []).forEach((cap, j) => { const ci = Math.min(6, top + j); const take = Math.min(left, cap); extra[ci] += take; left -= take; });
+      sharp = { base, extra, maxExtra: (w.hc || []).reduce((a, b) => a + b, 0), hcPts, added: wc.sharpAdd };
+    }
+  }
+  return { skills, bonuses, def, defBase, defSk, res, resB, atk, aff, atkSk, affSk, sharp, w, wc };
+}
+
+// ---------------- rendering helpers ----------------
+const sgHTML = (s) => `<span class="sg${s.t === "w" ? " w" : ""}" title="${s.t === "w" ? "Weapon" : "Armor"} slot, size ${s.z}"><b>${s.z}</b></span>`;
+const sgList = (arr) => arr.length ? `<span class="sgs">${arr.map(sgHTML).join("")}</span>` : `<span class="fine">No slots</span>`;
+const rarHTML = r => `<span class="rar${r >= 8 ? " r8" : ""}" title="Rarity ${r}">R${r}</span>`;
+const skChips = (sk) => sk.map(([s, v]) => `<span class="chip${isBonus(s) ? " set" : ""}">${esc(SK[s].n)}${isBonus(s) ? "" : `<b>${v}</b>`}</span>`).join("");
+const elemHTML = (sp) => sp.map(({ t, v, h }) => { const lab = `${ELABEL[t] || t} ${v}`; return `<span class="c-${esc(t)}">${h ? "(" + esc(lab) + ")" : esc(lab)}</span>`; }).join(" ");
+const resMini = (e) => `<span class="ires">${e.map((v, i) => `<span class="c-${ELEMS[i]}" title="${ELABEL[ELEMS[i]]} resistance"><i></i>${v > 0 ? "+" + v : v}</span>`).join("")}</span>`;
+
+function renderLoadout() {
+  const el = document.getElementById("loadout");
+  let html = "";
+  let filled = 0;
+  for (const slot of SLOTS) {
+    const it = itemOf(slot);
+    const st = S[slot];
+    if (it) filled++;
+    const sl = slotsOf(slot);
+    let sub = "";
+    if (it && slot === "weapon") {
+      const wc = weaponCalc(it, S.weapon.a);
+      sub = `<span>${esc(D.wtypes[it.t])}</span><span class="num">Atk ${showAtk(wc.raw, it.t)}</span>${wc.aff ? `<span class="num">Aff ${wc.aff > 0 ? "+" : ""}${wc.aff}%</span>` : ""}${wc.sp.length ? `<span class="num">${elemHTML(wc.sp)}</span>` : ""}`;
+    } else if (it && slot !== "talisman") {
+      sub = `<span class="num">Def ${it.m}</span>${resMini(it.e)}<span class="fine">${esc(setOf(it).n)}</span>`;
+    }
+    const decoHTML = sl.map((s, k) => {
+      const di = st.d[k];
+      if (di == null) return `<button class="deco empty" type="button" data-deco="${slot}:${k}">${sgHTML(s)}<span class="dn">Empty ${s.t === "w" ? "weapon" : "armor"} slot</span></button>`;
+      const d = D.decos[di];
+      return `<button class="deco" type="button" data-deco="${slot}:${k}">${sgHTML(s)}<span class="dn">${esc(d.n)}</span><span class="dk">${d.sk.map(([q, v]) => esc(SK[q].n) + " " + v).join(" · ")}</span></button>`;
+    }).join("");
+    const nameTxt = it ? esc(it.n) : (slot === "talisman" ? "Choose talisman" : "Choose " + SLOT_LABEL[slot].toLowerCase() + (slot === "weapon" ? "" : " armor"));
+    let custom = "";
+    if (slot === "talisman" && it && it.custom) custom = customTalHTML();
+    if (slot === "talisman" && !(it && it.custom)) sub = `<button class="btn sm" type="button" data-customtal="1">Enter an appraised talisman</button><span class="fine">Pick skills, levels and slots for a random-roll talisman</span>`;
+    if (slot === "weapon" && it && it.art) custom = forgeHTML(it);
+    if (slot === "weapon" && it && it.t === IG) custom += kinsectRowHTML(it);
+    html += `<div class="slot${it ? "" : " empty"}" data-slot="${slot}">
+      <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[slot]}</svg></div>
+      <div class="lbl">${SLOT_LABEL[slot]}${it && !it.custom ? " " + rarHTML(it.r) : ""}${sl.length ? " " + sgList(sl) : ""}</div>
+      <div class="acts">${it ? `<button class="btn ghost sm" type="button" data-unequip="${slot}" aria-label="Unequip ${SLOT_LABEL[slot]}">✕</button>` : ""}</div>
+      <button class="name" type="button" data-pick="${slot}">${nameTxt}</button>
+      ${sub ? `<div class="sub">${sub}</div>` : ""}
+      ${it && it.sk.length && !it.custom ? `<div class="skl">${skChips(it.sk)}</div>` : ""}
+      ${custom}
+      ${decoHTML ? `<div class="decos">${decoHTML}</div>` : ""}
+    </div>`;
+  }
+  el.innerHTML = html;
+  document.getElementById("loadMeta").textContent = `${filled} / 7 equipped`;
+}
+
+let skillOptionsHTML = null;
+function skillOptions(sel) {
+  if (!skillOptionsHTML) {
+    const list = SK.map((s, i) => [s, i]).filter(([s, i]) => !isBonus(i)).sort((a, b) => a[0].n.localeCompare(b[0].n));
+    skillOptionsHTML = list.map(([s, i]) => `<option value="${i}">${esc(s.n)}</option>`).join("");
+  }
+  return `<option value="">— no skill —</option>` + skillOptionsHTML.replace(`value="${sel}"`, `value="${sel}" selected`);
+}
+function bonusOptions(kind, sel) {
+  const list = SK.map((s, i) => [s, i]).filter(([s]) => s.k === kind).sort((a, b) => a[0].n.localeCompare(b[0].n));
+  return `<option value="">None</option>` + list.map(([s, i]) => `<option value="${i}"${i === sel ? " selected" : ""}>${esc(s.n)}</option>`).join("");
+}
+function forgeHTML(w) {
+  const A = ART[w.t], c = S.weapon.a || defaultArt();
+  const gog = w.art === 3;
+  const counts = {}; c.r.forEach(code => { if (code) counts[code[0]] = (counts[code[0]] || 0) + 1; });
+  const elOpts = `<option value="">No element (parts don't match)</option>` + ELIST.map(e => `<option value="${e}"${c.el === e ? " selected" : ""}>${ELABEL[e]}</option>`).join("");
+  const mOpts = A.gun ? "" : `<label class="fl"><span>Matching parts</span><select id="af-m" data-af="m"${c.el ? "" : " disabled"}><option value="2"${c.m === 2 ? " selected" : ""}>2 of 3 parts</option><option value="3"${c.m === 3 ? " selected" : ""}>All 3 parts (+${A.m3})</option></select></label>`;
+  const apOpts = [3, 2, 1, 0].map(n => `<option value="${n}"${c.ap === n ? " selected" : ""}>${n ? n + " Attack" : ""}${n && n < 3 ? " + " : ""}${3 - n ? (3 - n) + " Affinity" : ""}</option>`).join("");
+  const opts = rfOptions(w);
+  const rf = c.r.map((code, k) => {
+    const o = opts.map(([v, lab]) => {
+      const full = v[0] !== (code || " ")[0] && (counts[v[0]] || 0) >= RF[v[0]].cap;
+      return `<option value="${v}"${v === code ? " selected" : ""}${full ? " disabled" : ""}>${esc(lab)}${full ? " (max)" : ""}</option>`;
+    }).join("");
+    return `<select id="af-r${k}" data-af="r" data-k="${k}" aria-label="Reinforcement ${k + 1}"><option value="">Empty</option>${o}</select>`;
+  }).join("");
+  const gogHTML = gog ? `<div class="fgrid">
+      <label class="fl"><span>Set bonus skill</span><select id="af-ss" data-af="ss">${bonusOptions("set", c.ss)}</select></label>
+      <label class="fl"><span>Group skill</span><select id="af-gs" data-af="gs">${bonusOptions("group", c.gs)}</select></label></div>` : "";
+  return `<div class="custom-tal forge">
+    <div class="hint">${gog ? "Gogma Artian" : "Artian"} forge settings. Element comes from parts that share an element; a third matching part adds more.</div>
+    <div class="fgrid">
+      <label class="fl"><span>${A.gun ? "Element (ammo)" : "Element or status"}</span><select id="af-el" data-af="el">${elOpts}</select></label>
+      ${mOpts}
+      <label class="fl"><span>Part bonuses</span><select id="af-ap" data-af="ap">${apOpts}</select></label>
+    </div>
+    <div class="fl"><span>Reinforcements${gog ? " (Gogma levels)" : ""}</span><div class="rf">${rf}</div></div>
+    ${gogHTML}
+    <div class="forge-out">${forgeSummary(w, c)}</div>
+    ${forgeWarn(w, c)}
+  </div>`;
+}
+function forgeSummary(w, c) {
+  const wc = weaponCalc(w, c);
+  const parts = [`Atk ${showAtk(wc.raw, w.t)}`, `Aff ${wc.aff > 0 ? "+" : ""}${wc.aff}%`];
+  if (wc.sp.length) parts.push(wc.sp.map(s => `${ELABEL[s.t]} ${s.v}`).join(" "));
+  else if (!c.el) parts.push("No element");
+  if (wc.sharpAdd) parts.push(`Sharpness +${wc.sharpAdd}`);
+  if (wc.cap) parts.push(`Capacity +${wc.cap}`);
+  return esc(parts.join(" · ") + (wc.notes.length ? " · " + wc.notes.join("; ") : ""));
+}
+function forgeWarn(w, c) {
+  const msgs = [];
+  if (w.art === 3) {
+    const seen = {};
+    c.r.forEach(code => { if (code) seen[code] = (seen[code] || 0) + 1; });
+    if (Object.values(seen).some(n => n > 2)) msgs.push("Gogma reinforcement allows at most 2 of the same type and level.");
+  }
+  return msgs.map(m => `<div class="forge-warn">${esc(m)}</div>`).join("");
+}
+function kinsectRowHTML(w) {
+  const lv = kinLv(w), ki = S.weapon.k;
+  if (ki == null) return `<div class="decos"><button class="deco empty" type="button" data-kinsect="1"><span class="kb">K</span><span class="dn">Choose kinsect (Lv ${lv})</span></button></div>`;
+  const k = D.kinsects[ki], st = k.L[lv - 1];
+  return `<div class="decos"><button class="deco" type="button" data-kinsect="1"><span class="kb">K</span><span class="dn">${esc(k.n)} · Lv ${lv}</span><span class="dk">${esc(k.t)} · ${esc(k.p)} · Pow ${st[0]} Spd ${st[1]} Sta ${st[2]}</span></button></div>`;
+}
+function customTalHTML() {
+  const c = S.talisman.c;
+  let rows = "";
+  for (let k = 0; k < 3; k++) {
+    const [s, l] = c.sk[k] || [null, 1];
+    const m = s != null ? maxLv(s) : 7;
+    rows += `<div class="row"><select data-ct-skill="${k}" aria-label="Talisman skill ${k + 1}" id="ct-s${k}">${skillOptions(s == null ? "" : s)}</select>
+      <select data-ct-lv="${k}" aria-label="Talisman skill ${k + 1} level" id="ct-l${k}" ${s == null ? "disabled" : ""}>${Array.from({ length: m }, (_, j) => `<option value="${j + 1}"${j + 1 === l ? " selected" : ""}>Lv ${j + 1}</option>`).join("")}</select></div>`;
+  }
+  let slots = "";
+  for (let k = 0; k < 3; k++) {
+    const s = c.sl[k];
+    const v = s ? s.t + s.z : "";
+    slots += `<select data-ct-slot="${k}" aria-label="Talisman slot ${k + 1}" id="ct-sl${k}"><option value="">No slot</option>${["a1", "a2", "a3", "w1", "w2", "w3"].map(o => `<option value="${o}"${o === v ? " selected" : ""}>${o[0] === "a" ? "Armor" : "Weapon"} [${o[1]}]</option>`).join("")}</select>`;
+  }
+  return `<div class="custom-tal"><div class="hint">Enter the skills and slots your appraised talisman rolled.</div>${rows}<div class="row">${slots}</div></div>`;
+}
+
+function renderSkills(C) {
+  const el = document.getElementById("skills");
+  const bonusHTML = C.bonuses.map(b => {
+    const sk = SK[b.s];
+    const reqs = sk.r.map(r => r.p || 0);
+    const maxReq = Math.max(...reqs, b.pts);
+    const bar = Array.from({ length: maxReq }, (_, k) => `<i class="${k < b.pts ? "on" : ""}${reqs.includes(k + 1) ? " mark" : ""}"></i>`).join("");
+    const status = b.active ? `<span class="num">${b.pts} pc</span>` : `<span class="num">${b.pts} / ${b.next ? b.next.p : "?"}</span>`;
+    const eff = b.active ? `<b>${esc(b.active.n || "")}</b>${b.active.n ? ": " : ""}${esc(b.active.d)}` : `Needs ${b.next ? b.next.p - b.pts : "?"} more piece${b.next && b.next.p - b.pts === 1 ? "" : "s"} for ${esc(b.next ? b.next.n || "the first bonus" : "a bonus")}.`;
+    return skillBlock(b.s, `<span class="setbar" title="Pieces equipped; outlined marks are bonus thresholds">${bar}</span>${status}`, eff, !b.active, sk.r.map(r => ({ cur: b.active && r.l === b.active.l, lab: `${r.p} pc`, name: r.n, d: r.d })), b.src);
+  }).join("");
+  const skillHTML = C.skills.map(x => {
+    const sk = SK[x.s];
+    const pips = Array.from({ length: Math.max(x.max, x.pts) }, (_, k) => `<i class="${k < x.lv ? "on" : k < x.pts ? "over" : ""}"></i>`).join("");
+    const cur = sk.r.find(r => r.l === x.lv);
+    const over = x.pts > x.max ? `<span class="over-tag" title="Points above the max level are wasted">+${x.pts - x.max} over</span>` : "";
+    return skillBlock(x.s, `${over}<span class="pips" aria-hidden="true">${pips}</span><span class="num">${x.lv}/${x.max}</span>`, esc(cur ? cur.d : ""), false, sk.r.map(r => ({ cur: r.l === x.lv, lab: "Lv " + r.l, d: r.d })), x.src);
+  }).join("");
+  let out = "";
+  if (C.bonuses.length) out += `<div class="sk-group"><h3>Set &amp; group bonuses</h3>${bonusHTML}</div>`;
+  if (C.skills.length) out += `<div class="sk-group"><h3>Equipment skills</h3>${skillHTML}</div>`;
+  if (!out) out = `<p class="empty-note">Equip a weapon, armor or decorations and their skills appear here with levels and effects.</p>`;
+  el.innerHTML = out;
+  const act = C.bonuses.filter(b => b.active).length;
+  document.getElementById("skillMeta").textContent = `${C.skills.length} skills · ${act} bonus${act === 1 ? "" : "es"} active`;
+}
+const openSkills = new Set();
+function skillBlock(s, right, eff, inactive, ranks, src) {
+  const sk = SK[s];
+  const kind = { weapon: "Weapon skill", armor: "Armor skill", set: "Set bonus", group: "Group skill" }[sk.k] || "";
+  return `<details class="sk" data-sk="${s}"${openSkills.has(s) ? " open" : ""}><summary>
+      <span class="sk-name"><span class="caret">▶</span>${esc(sk.n)} <span class="sk-kind">${kind}</span></span>
+      <span class="sk-lv">${right}</span>
+      <span class="sk-eff${inactive ? " inactive" : ""}">${eff}</span></summary>
+    <div class="sk-body">
+      ${sk.d ? `<div class="sk-desc">${esc(sk.d)}</div>` : ""}
+      <div class="ranks">${ranks.map(r => `<div class="rank${r.cur ? " cur" : ""}"><span class="rl">${esc(r.lab)}</span><span>${r.name ? `<span class="rn">${esc(r.name)}</span> · ` : ""}${esc(r.d)}</span></div>`).join("")}</div>
+      <div class="srcs">${src.map(([n, v]) => `<span>${esc(n)} <b>+${v}</b></span>`).join("")}</div>
+    </div></details>`;
+}
+
+function renderStats(C) {
+  const el = document.getElementById("stats");
+  const resRows = ELEMS.map((e, i) => {
+    const v = C.res[i] + C.resB[i];
+    const w = Math.min(50, Math.abs(v) / 40 * 50);
+    const left = v >= 0 ? 50 : 50 - w;
+    return `<div class="el c-${e}"><i></i><span style="color:var(--fg)">${ELABEL[e]}</span></div>
+      <div class="bar"><span style="left:${left}%;width:${w}%;background:var(--${e})"></span></div>
+      <div class="val${v < 0 ? " neg" : ""}">${v > 0 ? "+" : ""}${v}${C.resB[i] ? `<span class="fine"> (${C.res[i] > 0 ? "+" : ""}${C.res[i]})</span>` : ""}</div>`;
+  }).join("");
+  let wHTML = `<p class="fine" style="margin:0">No weapon equipped.</p>`;
+  if (C.w) {
+    const w = C.w;
+    let sharpHTML = "";
+    if (C.sharp) {
+      const total = 400;
+      const segs = [];
+      C.sharp.base.forEach((v, i) => { if (v) segs.push(`<span style="width:${v / total * 100}%;background:var(--s-${SHARP[i]})" title="${SHARP[i]} ${v}"></span>`); if (C.sharp.extra[i]) segs.push(`<span class="hc" style="width:${C.sharp.extra[i] / total * 100}%;background-color:var(--s-${SHARP[i]})" title="${SHARP[i]} +${C.sharp.extra[i]} from Handicraft"></span>`); });
+      sharpHTML = `<div><div class="sharp" role="img" aria-label="Sharpness bar">${segs.join("")}</div>
+        <div class="sharp-legend"><span>Sharpness</span><span>Handicraft ${C.sharp.hcPts}/${C.sharp.maxExtra}${C.sharp.hcPts ? " (striped)" : ""}</span></div></div>`;
+    }
+    const wc = C.wc;
+    const atkTxt = C.atkSk !== C.atk ? `${showAtk(C.atkSk, w.t)} <span class="fine">(${showAtk(C.atk, w.t)})</span>` : showAtk(C.atk, w.t);
+    const affTxt = v => (v > 0 ? "+" : "") + v + "%";
+    const affHTML = C.affSk !== C.aff ? `${affTxt(C.affSk)} <span class="fine">(${affTxt(C.aff)})</span>` : affTxt(C.aff);
+    const xs = w.x ? Object.entries(w.x).filter(([k]) => k !== "Kinsect Lv" || w.t !== IG).map(([k, v]) => `<dt>${esc(k)}</dt><dd class="txt">${esc(v)}</dd>`).join("") : "";
+    const isStatus = wc.sp.some(s => STATUS.includes(s.t));
+    let extra = "";
+    if (w.art && S.weapon.a && S.weapon.a.el && ART[w.t].gun) extra += `<dt>Element ammo</dt><dd class="txt">${ELABEL[S.weapon.a.el]}${wc.cap ? ` (capacity +${wc.cap})` : ""}</dd>`;
+    if (w.art && S.weapon.a && S.weapon.a.el && ART[w.t].bow && STATUS.includes(S.weapon.a.el)) extra += `<dt>Added coating</dt><dd class="txt">${ELABEL[S.weapon.a.el]}</dd>`;
+    if (w.art === 3 && S.weapon.a) {
+      const g = S.weapon.a;
+      extra += `<dt>Gogma skills</dt><dd class="txt">${[g.ss, g.gs].filter(v => v != null).map(v => esc(SK[v].n)).join(", ") || "None chosen"}</dd>`;
+    }
+    let kin = "";
+    if (w.t === IG) {
+      const lv = kinLv(w);
+      if (S.weapon.k == null) kin = `<div class="fine">No kinsect chosen. Kinsect level ${lv}.</div>`;
+      else {
+        const k = D.kinsects[S.weapon.k];
+        kin = `<div class="kin-card"><div class="kv" style="grid-template-columns:auto minmax(0,1fr)"><dt>Kinsect</dt><dd class="txt">${esc(k.n)} · Lv ${lv}</dd><dt>Type</dt><dd class="txt">${esc(k.t)} · ${esc(k.p)} powder</dd><dt>Bonuses</dt><dd class="txt">${k.b.map(esc).join("<br>")}</dd></div>${kinStatsHTML(k, lv)}</div>`;
+      }
+    }
+    wHTML = `<dl class="kv"><dt>Type</dt><dd class="txt">${esc(D.wtypes[w.t])}</dd>
+      <dt>Attack</dt><dd>${atkTxt}</dd><dt>Affinity</dt><dd>${affHTML}</dd>
+      <dt>${isStatus ? "Status" : "Element"}</dt><dd>${wc.sp.length ? elemHTML(wc.sp) : "None"}</dd>
+      ${w.df ? `<dt>Defense bonus</dt><dd>+${w.df}</dd>` : ""}${extra}${xs}</dl>${sharpHTML}${kin}`;
+  }
+  el.innerHTML = `
+    <div class="stat-card"><h3>Defense</h3>
+      <div class="big"><span class="v num">${C.defSk}</span>${C.defSk !== C.def ? `<span class="delta">+${C.defSk - C.def} from skills</span>` : ""}</div>
+      <div class="fine">Equipment ${C.def} at max upgrade · ${C.defBase} unupgraded</div></div>
+    <div class="stat-card" style="border-top:1px solid var(--line)"><h3>Elemental resistance</h3><div class="res">${resRows}</div>
+      ${C.resB.some(Boolean) ? `<div class="fine">Bracketed values are armor only, before skills.</div>` : ""}</div>
+    <div class="stat-card" style="border-top:1px solid var(--line)"><h3>Weapon</h3>${wHTML}
+      ${C.w && (C.atkSk !== C.atk || C.affSk !== C.aff) ? `<div class="fine">Bracketed values are the weapon's base before Attack Boost and Critical Eye.</div>` : ""}</div>`;
+}
+
+function render() {
+  const C = compute();
+  renderLoadout(); renderSkills(C); renderStats(C);
+  document.getElementById("bname").value = S.name;
+  persist();
+}
+
+// ---------------- encoding ----------------
+const b36 = n => n.toString(36);
+function encode() {
+  const part = slot => {
+    const st = S[slot];
+    if (st.i === null) return "x";
+    let head = st.i === -1 ? "c" + (st.c.sk.filter(x => x[0] != null).map(([s, l]) => b36(s) + "-" + l).join("-") || "") + "~" + st.c.sl.map(s => s.t + s.z).join("") : b36(st.i);
+    if (slot === "weapon") {
+      const a = st.a;
+      if (a && D.weapons[st.i].art) head += "~a" + [a.el ? ELIST.indexOf(a.el) : "x", a.m, a.ap, a.r.map(c => c || "0").join("+"), a.ss == null ? "x" : b36(a.ss), a.gs == null ? "x" : b36(a.gs)].join("-");
+      if (st.k != null) head += "~k" + b36(st.k);
+    }
+    const ds = st.d.map(d => d == null ? "" : b36(d));
+    return head + (ds.some(Boolean) ? "_" + ds.join("_") : "");
+  };
+  return "wf1." + SLOTS.map(part).join(".");
+}
+function decode(code) {
+  code = String(code || "").trim().replace(/^.*#/, "");
+  const parts = code.split(".");
+  if (parts[0] !== "wf1" || parts.length !== 8) throw new Error("bad");
+  const st = blank();
+  SLOTS.forEach((slot, k) => {
+    const p = parts[k + 1];
+    if (!p || p === "x") return;
+    const [head, ...ds] = p.split("_");
+    if (head[0] === "c" && slot === "talisman") {
+      const [sks, sls] = head.slice(1).split("~");
+      const nums = sks ? sks.split("-") : [];
+      const sk = []; for (let j = 0; j + 1 < nums.length; j += 2) { const s = parseInt(nums[j], 36), l = +nums[j + 1]; if (SK[s] && !isBonus(s)) sk.push([s, Math.min(l, maxLv(s))]); }
+      const sl = (sls || "").match(/[aw][123]/g) || [];
+      st.talisman = { i: -1, c: { sk: sk.slice(0, 3), sl: sl.slice(0, 3).map(x => ({ t: x[0], z: +x[1] })) }, d: [] };
+    } else {
+      const [idx, ...opts] = head.split("~");
+      const i = parseInt(idx, 36);
+      const pool = slot === "weapon" ? D.weapons : slot === "talisman" ? D.tals : D.armor;
+      if (!pool[i] || (ARMOR_KINDS.includes(slot) && pool[i].k !== slot)) return;
+      st[slot].i = i;
+      if (slot === "weapon") {
+        const w = pool[i];
+        if (w.art) st.weapon.a = defaultArt();
+        opts.forEach(o => {
+          if (o[0] === "k" && w.t === IG) { const k = parseInt(o.slice(1), 36); if (D.kinsects[k]) st.weapon.k = k; }
+          if (o[0] === "a" && w.art) {
+            const [el, m, ap, r, ss, gs] = o.slice(1).split("-");
+            const a = st.weapon.a, valid = rfOptions(w).map(([v]) => v);
+            a.el = el !== "x" && ELIST[+el] ? ELIST[+el] : null;
+            a.m = m === "3" ? 3 : 2;
+            a.ap = Math.max(0, Math.min(3, +ap || 0));
+            a.r = (r || "").split("+").concat(["", "", "", "", ""]).slice(0, 5).map(c => valid.includes(c) ? c : "");
+            const sk = (v, kind) => { const n = v && v !== "x" ? parseInt(v, 36) : null; return n != null && SK[n] && SK[n].k === kind ? n : null; };
+            if (w.art === 3) { a.ss = sk(ss, "set"); a.gs = sk(gs, "group"); }
+          }
+        });
+      }
+    }
+    st[slot].d = ds.map(x => x === "" ? null : parseInt(x, 36));
+  });
+  return st;
+}
+
+// ---------------- storage ----------------
+const LS_CUR = "wbf-current", LS_SAVED = "wbf-saved";
+function lsGet(k, def) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+function persist() { lsSet(LS_CUR, { name: S.name, code: encode() }); }
+function loadState(name, code) {
+  const st = decode(code); st.name = name || "Imported build"; S = st;
+  SLOTS.forEach(fixDecos);
+}
+
+// ---------------- picker ----------------
+const P = { slot: null, kind: null, deco: null };
+const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
+const q = document.getElementById("q"), fSkill = document.getElementById("fSkill"), fRar = document.getElementById("fRar"), fSort = document.getElementById("fSort"), wtabs = document.getElementById("wtabs");
+let lastFocus = null;
+
+function poolSkills(pool) {
+  const set = new Set(); pool.forEach(x => x.sk.forEach(([s]) => set.add(s)));
+  return [...set].sort((a, b) => SK[a].n.localeCompare(SK[b].n));
+}
+function openPicker(slot, decoIdx) {
+  lastFocus = document.activeElement;
+  P.slot = slot; P.deco = decoIdx == null ? null : decoIdx;
+  P.kind = P.deco != null ? "deco" : slot === "weapon" ? "weapon" : slot === "talisman" ? "talisman" : "armor";
+  let pool;
+  if (P.kind === "deco") {
+    const s = slotsOf(slot)[P.deco];
+    pool = D.decos.filter(d => d.on === s.t && d.lv <= s.z);
+    document.getElementById("drTitle").textContent = `${s.t === "w" ? "Weapon" : "Armor"} decoration · size ${s.z}`;
+    fSort.innerHTML = `<option value="lv">Size, largest first</option><option value="name">Name</option>`;
+  } else if (P.kind === "weapon") {
+    pool = D.weapons;
+    document.getElementById("drTitle").textContent = "Weapon";
+    fSort.innerHTML = `<option value="tree">Game order</option><option value="atk">Attack</option><option value="aff">Affinity</option><option value="rar">Rarity</option><option value="name">Name</option>`;
+    const cur = itemOf("weapon"); if (cur) lastWType = cur.t;
+  } else if (P.kind === "talisman") {
+    pool = D.tals;
+    document.getElementById("drTitle").textContent = "Talisman";
+    fSort.innerHTML = `<option value="rar">Rarity</option><option value="name">Name</option>`;
+  } else {
+    pool = D.armor.filter(a => a.k === slot);
+    document.getElementById("drTitle").textContent = SLOT_LABEL[slot] + " armor";
+    fSort.innerHTML = `<option value="rar">Rarity, then defense</option><option value="def">Defense</option><option value="slots">Decoration slots</option><option value="name">Name</option>`;
+  }
+  P.pool = pool;
+  fSkill.innerHTML = `<option value="">Any skill</option>` + poolSkills(pool).map(s => `<option value="${s}">${esc(SK[s].n)}${isBonus(s) ? " (bonus)" : ""}</option>`).join("");
+  fRar.innerHTML = `<option value="0">Any rarity</option>` + [8, 7, 6, 5, 4, 3, 2, 1].map(r => `<option value="${r}">Rarity ${r}+</option>`).join("");
+  fRar.hidden = P.kind === "deco";
+  q.value = "";
+  wtabs.hidden = P.kind !== "weapon";
+  if (P.kind === "weapon") renderTabs();
+  const hasCur = P.kind === "deco" ? S[slot].d[P.deco] != null : S[slot].i !== null;
+  document.getElementById("drRemove").hidden = !hasCur;
+  drawer.hidden = false; scrim.hidden = false;
+  document.body.style.overflow = "hidden";
+  renderList();
+  setTimeout(() => q.focus({ preventScroll: true }), 30);
+}
+function closePicker() {
+  drawer.hidden = true; scrim.hidden = true; document.body.style.overflow = "";
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+}
+function renderTabs() {
+  wtabs.innerHTML = D.wtypes.map((t, i) => `<button type="button" class="wtab${i === lastWType ? " on" : ""}" data-wt="${i}">${esc(t)}</button>`).join("");
+  const on = wtabs.querySelector(".on"); if (on) on.scrollIntoView({ block: "nearest", inline: "nearest" });
+}
+function renderList() {
+  const term = q.value.trim().toLowerCase();
+  if (P.kind === "kinsect") return renderKinsectList(term);
+  const fs = fSkill.value === "" ? null : +fSkill.value;
+  const fr = +fRar.value || 0;
+  let rows = P.pool.map((x, k) => [x, k]);
+  if (P.kind === "weapon") rows = rows.filter(([x]) => x.t === lastWType);
+  if (term) { const terms = term.split(/\s+/); rows = rows.filter(([x]) => terms.every(t => x._q.includes(t))); }
+  if (fs !== null) rows = rows.filter(([x]) => x.sk.some(([s]) => s === fs));
+  if (fr && P.kind !== "deco") rows = rows.filter(([x]) => x.r >= fr);
+  const sort = fSort.value;
+  const slotSum = x => (x.sl || []).reduce((a, b) => a + b, 0);
+  const byName = (a, b) => a[0].n.localeCompare(b[0].n);
+  if (sort === "name") rows.sort(byName);
+  else if (sort === "lv") rows.sort((a, b) => b[0].lv - a[0].lv || byName(a, b));
+  else if (sort === "rar") rows.sort((a, b) => b[0].r - a[0].r || (b[0].m || 0) - (a[0].m || 0) || byName(a, b));
+  else if (sort === "def") rows.sort((a, b) => b[0].m - a[0].m || byName(a, b));
+  else if (sort === "slots") rows.sort((a, b) => slotSum(b[0]) - slotSum(a[0]) || b[0].r - a[0].r);
+  else if (sort === "atk") rows.sort((a, b) => b[0].a - a[0].a || b[0].r - a[0].r);
+  else if (sort === "aff") rows.sort((a, b) => b[0].af - a[0].af || b[0].a - a[0].a);
+
+  const realIndex = x => P.kind === "weapon" ? D.weapons.indexOf(x) : P.kind === "talisman" ? D.tals.indexOf(x) : P.kind === "deco" ? D.decos.indexOf(x) : D.armor.indexOf(x);
+  const curIdx = P.kind === "deco" ? S[P.slot].d[P.deco] : S[P.slot].i;
+  const shown = rows.slice(0, 400);
+  let html = "";
+  if (P.kind === "talisman") html += `<button class="custom-btn" type="button" data-custom="1"><b>Custom talisman</b><span>For appraised talismans with random skills and slots</span></button>`;
+  html += `<div class="dr-count">${rows.length} result${rows.length === 1 ? "" : "s"}${rows.length > shown.length ? ", showing first " + shown.length : ""}</div>`;
+  html += shown.map(([x]) => {
+    const ri = realIndex(x);
+    let meta = "", top = "";
+    if (P.kind === "armor") {
+      top = `<span class="fine">${esc(setOf(x).n)}</span>`;
+      meta = `${resMini(x.e)}<span class="num">Def ${x.m}</span>${sgList(x.sl.map(z => ({ t: "a", z })))}`;
+    } else if (P.kind === "weapon") {
+      const spTxt = x.art ? `<span class="fine">${ART[x.t].gun ? "Any element ammo" : "Any element or status"}</span>` : x.sp ? `<span class="num">${elemHTML(x.sp.map(([t, v, h]) => ({ t, v: v * 10, h })))}</span>` : "";
+      meta = `<span class="num">Atk ${showAtk(x.a, x.t)}</span>${x.af ? `<span class="num">${x.af > 0 ? "+" : ""}${x.af}%</span>` : ""}${spTxt}${sgList(x.sl.map(z => ({ t: "w", z })))}`;
+    } else if (P.kind === "deco") {
+      meta = sgList([{ t: x.on, z: x.lv }]);
+    }
+    return `<button type="button" class="item${ri === curIdx ? " cur" : ""}" data-idx="${ri}">
+      <span class="in">${esc(x.n)} ${x.r ? rarHTML(x.r) : ""} ${top}</span>
+      <span class="im">${meta}</span>
+      ${x.sk.length ? `<span class="ik">${skChips(x.sk)}</span>` : ""}</button>`;
+  }).join("");
+  if (!rows.length) html += `<p class="empty-note">Nothing matches. Clear the search or pick a different skill filter.</p>`;
+  const list = document.getElementById("drList");
+  list.innerHTML = html; list.scrollTop = 0;
+}
+function renderKinsectList(term) {
+  const lv = kinLv(itemOf("weapon")) || 1;
+  const pw = fSkill.value, at = fRar.value === "0" ? "" : fRar.value;
+  let rows = D.kinsects.map((k, i) => [k, i]);
+  if (term) { const terms = term.split(/\s+/); rows = rows.filter(([k]) => terms.every(t => k._q.includes(t))); }
+  if (pw) rows = rows.filter(([k]) => k.p === pw);
+  if (at) rows = rows.filter(([k]) => k.t === at);
+  const s = fSort.value;
+  if (s === "name") rows.sort((a, b) => a[0].n.localeCompare(b[0].n));
+  else { const c = +s[1]; rows.sort((a, b) => b[0].L[lv - 1][c] - a[0].L[lv - 1][c] || a[0].n.localeCompare(b[0].n)); }
+  let html = `<div class="dr-count">${rows.length} kinsect${rows.length === 1 ? "" : "s"} · stats at your glaive's kinsect level ${lv}</div>`;
+  html += rows.map(([k, i]) => `<button type="button" class="item${i === S.weapon.k ? " cur" : ""}" data-idx="${i}">
+      <span class="in">${esc(k.n)} <span class="fine">${esc(k.t)} · ${esc(k.p)} powder</span></span>
+      <span class="im"></span>
+      <span class="ik">${k.b.map(b => `<span class="chip">${esc(b)}</span>`).join("")}</span>
+      <span class="ik" style="display:block">${kinStatsHTML(k, lv)}</span></button>`).join("");
+  if (!rows.length) html += `<p class="empty-note">No kinsect matches. Clear the search or filters.</p>`;
+  const list = document.getElementById("drList"); list.innerHTML = html; list.scrollTop = 0;
+}
+function choose(idx) {
+  if (P.kind === "deco") { S[P.slot].d[P.deco] = idx; }
+  else if (P.kind === "talisman" && idx === -1) { S.talisman = { i: -1, c: S.talisman.c || { sk: [], sl: [] }, d: [] }; fixDecos("talisman"); }
+  else if (P.kind === "kinsect") { S.weapon.k = idx; }
+  else if (P.kind === "weapon") {
+    const prev = S.weapon.i == null ? null : D.weapons[S.weapon.i], w = D.weapons[idx];
+    S.weapon.i = idx;
+    if (!w.art) S.weapon.a = null;
+    else if (!prev || !prev.art || prev.t !== w.t || (prev.art === 3) !== (w.art === 3)) S.weapon.a = defaultArt();
+    else S.weapon.a.r = S.weapon.a.r.map(c => c && rfOptions(w).some(([v]) => v === c) ? c : "");
+    if (w.t !== IG) S.weapon.k = null;
+    fixDecos("weapon");
+  }
+  else { S[P.slot].i = idx; if (P.slot === "talisman") S.talisman.c = null; fixDecos(P.slot); }
+  closePicker(); render();
+}
+function openKinsectPicker() {
+  lastFocus = document.activeElement;
+  P.slot = "weapon"; P.deco = null; P.kind = "kinsect"; P.pool = D.kinsects;
+  const w = itemOf("weapon");
+  document.getElementById("drTitle").textContent = `Kinsect · Lv ${kinLv(w)}`;
+  fSort.innerHTML = `<option value="k0">Power</option><option value="k1">Speed</option><option value="k2">Stamina</option><option value="k3">Powder effect</option><option value="name">Name</option>`;
+  fSkill.innerHTML = `<option value="">Any powder</option>` + ["Blast", "Poison", "Paralysis", "Recover"].map(p => `<option value="${p}">${p} powder</option>`).join("");
+  fRar.innerHTML = `<option value="0">Blunt or severing</option><option value="Blunt">Blunt</option><option value="Severing">Severing</option>`;
+  fRar.hidden = false; q.value = ""; wtabs.hidden = true;
+  document.getElementById("drRemove").hidden = S.weapon.k == null;
+  drawer.hidden = false; scrim.hidden = false; document.body.style.overflow = "hidden";
+  renderList();
+  setTimeout(() => q.focus({ preventScroll: true }), 30);
+}
+function kinStatsHTML(k, lv) {
+  const st = k.L[lv - 1] || k.L[0];
+  return `<span class="kstats">${KSTAT.map((n, i) => `<span class="kstat">${n} <b>${st[i]}</b><i><span style="width:${st[i] / 15 * 100}%"></span></i></span>`).join("")}</span>`;
+}
+const KSTAT = ["Power", "Speed", "Stamina", "Powder"];
+D.kinsects.forEach(k => { k.sk = []; k._q = (k.n + " " + k.t + " " + k.p + " " + k.b.join(" ")).toLowerCase(); });
+
+// ---------------- events ----------------
+document.getElementById("loadout").addEventListener("click", e => {
+  const t = e.target.closest("[data-pick],[data-deco],[data-unequip],[data-kinsect],[data-customtal]");
+  if (!t) return;
+  if (t.dataset.pick) openPicker(t.dataset.pick);
+  else if (t.dataset.deco) { const [slot, k] = t.dataset.deco.split(":"); openPicker(slot, +k); }
+  else if (t.dataset.kinsect) openKinsectPicker();
+  else if (t.dataset.customtal) { S.talisman = { i: -1, c: { sk: [], sl: [] }, d: [] }; render(); const f = document.getElementById("ct-s0"); if (f) f.focus(); }
+  else if (t.dataset.unequip) { const s = t.dataset.unequip; S[s] = blank()[s]; render(); }
+});
+document.getElementById("loadout").addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.af) {
+    const w = itemOf("weapon"); if (!w || !w.art) return;
+    const a = S.weapon.a || (S.weapon.a = defaultArt());
+    const f = t.dataset.af;
+    if (f === "el") { a.el = t.value || null; }
+    else if (f === "m") a.m = +t.value;
+    else if (f === "ap") a.ap = +t.value;
+    else if (f === "r") a.r[+t.dataset.k] = t.value;
+    else if (f === "ss" || f === "gs") a[f] = t.value === "" ? null : +t.value;
+    render();
+    const again = document.getElementById(t.id); if (again) again.focus();
+    return;
+  }
+  const c = S.talisman.c; if (!c) return;
+  if (t.dataset.ctSkill != null) {
+    const k = +t.dataset.ctSkill;
+    while (c.sk.length <= k) c.sk.push([null, 1]);
+    c.sk[k] = [t.value === "" ? null : +t.value, 1];
+  } else if (t.dataset.ctLv != null) {
+    const k = +t.dataset.ctLv; if (c.sk[k]) c.sk[k][1] = +t.value;
+  } else if (t.dataset.ctSlot != null) {
+    const k = +t.dataset.ctSlot; const arr = [0, 1, 2].map(j => j === k ? t.value : (c.sl[j] ? c.sl[j].t + c.sl[j].z : ""));
+    const old = S.talisman.d.slice();
+    c.sl = arr.filter(Boolean).map(v => ({ t: v[0], z: +v[1] }));
+    S.talisman.d = old; fixDecos("talisman");
+  } else return;
+  render();
+});
+document.getElementById("skills").addEventListener("toggle", e => {
+  const d = e.target; if (!d.dataset || d.dataset.sk == null) return;
+  if (d.open) openSkills.add(+d.dataset.sk); else openSkills.delete(+d.dataset.sk);
+}, true);
+document.getElementById("drList").addEventListener("click", e => {
+  const c = e.target.closest("[data-custom]"); if (c) { choose(-1); return; }
+  const t = e.target.closest("[data-idx]"); if (t) choose(+t.dataset.idx);
+});
+wtabs.addEventListener("click", e => { const t = e.target.closest("[data-wt]"); if (!t) return; lastWType = +t.dataset.wt; renderTabs(); renderList(); });
+[q, fSkill, fRar, fSort].forEach(x => x.addEventListener(x === q ? "input" : "change", renderList));
+document.getElementById("drClose").addEventListener("click", closePicker);
+scrim.addEventListener("click", closePicker);
+document.getElementById("drRemove").addEventListener("click", () => {
+  if (P.kind === "deco") S[P.slot].d[P.deco] = null;
+  else if (P.kind === "kinsect") S.weapon.k = null;
+  else S[P.slot] = blank()[P.slot];
+  closePicker(); render();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { if (!drawer.hidden) closePicker(); else if (!menu.hidden) toggleMenu(false); }
+});
+document.getElementById("bname").addEventListener("input", e => { S.name = e.target.value || "Untitled build"; persist(); });
+
+// builds menu
+const menu = document.getElementById("menu"), buildsBtn = document.getElementById("buildsBtn");
+function toggleMenu(open) {
+  menu.hidden = !open; buildsBtn.setAttribute("aria-expanded", String(open));
+  if (open) { renderSaved(); document.getElementById("codeBox").value = encode(); }
+}
+buildsBtn.addEventListener("click", () => toggleMenu(menu.hidden));
+document.addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== buildsBtn) toggleMenu(false); });
+function renderSaved() {
+  const saved = lsGet(LS_SAVED, []);
+  document.getElementById("savedList").innerHTML = saved.length ? saved.map((b, k) => `<div><button class="load" type="button" data-load="${k}">${esc(b.name)}</button><button class="btn ghost sm" type="button" data-del="${k}" aria-label="Delete ${esc(b.name)}">Delete</button></div>`).join("") : `<p class="fine" style="margin:4px 2px">No saved builds yet. Press Save to keep this one.</p>`;
+}
+document.getElementById("savedList").addEventListener("click", e => {
+  const saved = lsGet(LS_SAVED, []);
+  const l = e.target.closest("[data-load]"), d = e.target.closest("[data-del]");
+  if (l) { const b = saved[+l.dataset.load]; try { loadState(b.name, b.code); render(); toast("Loaded " + b.name); toggleMenu(false); } catch (err) { toast("That saved build could not be read."); } }
+  if (d) {
+    if (d.dataset.confirm) { saved.splice(+d.dataset.del, 1); lsSet(LS_SAVED, saved); renderSaved(); toast("Deleted"); }
+    else { d.dataset.confirm = "1"; d.textContent = "Confirm"; }
+  }
+});
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const saved = lsGet(LS_SAVED, []);
+  const k = saved.findIndex(b => b.name === S.name);
+  const entry = { name: S.name, code: encode() };
+  if (k >= 0) saved[k] = entry; else saved.unshift(entry);
+  lsSet(LS_SAVED, saved.slice(0, 50));
+  toast(k >= 0 ? `Updated "${S.name}"` : `Saved "${S.name}"`);
+  if (!menu.hidden) renderSaved();
+});
+document.getElementById("copyCode").addEventListener("click", () => {
+  const box = document.getElementById("codeBox"); box.value = encode();
+  const fallback = () => { box.focus(); box.select(); toast("Code selected. Copy it with your keyboard."); };
+  try { navigator.clipboard.writeText(box.value).then(() => toast("Build code copied"), fallback); } catch (e) { fallback(); }
+});
+document.getElementById("loadCode").addEventListener("click", () => {
+  try { loadState("Imported build", document.getElementById("codeBox").value); render(); toast("Build loaded"); toggleMenu(false); }
+  catch (e) { toast("That code isn't a Build Forge code. It should start with wf1."); }
+});
+const clearBtn = document.getElementById("clearBtn");
+clearBtn.addEventListener("click", () => {
+  if (clearBtn.dataset.confirm) { S = blank(); render(); clearBtn.textContent = "Clear all"; delete clearBtn.dataset.confirm; toast("Cleared"); }
+  else { clearBtn.dataset.confirm = "1"; clearBtn.textContent = "Press again to clear"; setTimeout(() => { clearBtn.textContent = "Clear all"; delete clearBtn.dataset.confirm; }, 3000); }
+});
+let toastT;
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
+
+// ---------------- start ----------------
+function exampleBuild() {
+  const st = blank(); st.name = "Example: Thunder Long Sword";
+  const ai = n => D.armor.findIndex(a => a.n === n);
+  const wi = D.weapons.findIndex(w => w.n === "Fulgurblade Guardiana");
+  if (wi >= 0) st.weapon.i = wi;
+  const pieces = { head: "Gogmazios Helm α", chest: "Arkvulcan Mail β", arms: "Gogmazios Vambraces α", waist: "Arkvulcan Coil β", legs: "Gogmazios Greaves α" };
+  for (const k in pieces) { const i = ai(pieces[k]); if (i >= 0) st[k].i = i; }
+  const ti = D.tals.findIndex(t => t.n === "Chain Charm III"); if (ti >= 0) st.talisman.i = ti;
+  S = st; SLOTS.forEach(fixDecos);
+  const pickDeco = (slot, k, skillName) => {
+    const s = slotsOf(slot)[k]; if (!s) return;
+    const cand = D.decos.filter(d => d.on === s.t && d.lv <= s.z && d.sk.some(([q]) => SK[q].n === skillName)).sort((a, b) => b.lv - a.lv || a.sk.length - b.sk.length);
+    if (cand.length) S[slot].d[k] = D.decos.indexOf(cand[0]);
+  };
+  pickDeco("weapon", 0, "Critical Eye"); pickDeco("weapon", 1, "Attack Boost"); pickDeco("weapon", 2, "Critical Boost");
+  pickDeco("head", 0, "Agitator"); pickDeco("chest", 0, "Weakness Exploit");
+  pickDeco("legs", 0, "Burst");
+}
+document.getElementById("dataDate").textContent = DATA_DATE;
+document.getElementById("dataNote").textContent = `${D.armor.length} armor · ${D.weapons.length} weapons · ${D.decos.length} decorations · ${SK.length} skills`;
+const cur = lsGet(LS_CUR, null);
+try { if (cur && cur.code) loadState(cur.name, cur.code); else exampleBuild(); } catch (e) { exampleBuild(); }
+render();
+})();
+</script>
